@@ -18,9 +18,9 @@ export default function SchedulePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-lg border border-border p-0.5">
+        <div className="flex gap-1 font-mono text-[13px]">
           {(["day", "week"] as const).map((v) => (
-            <button key={v} onClick={() => setView(v)} className={`rounded-md px-3 py-1 text-sm capitalize ${view === v ? "bg-surface-2 font-medium" : "text-muted"}`}>{v}</button>
+            <button key={v} onClick={() => setView(v)} className={`px-2 py-1 ${view === v ? "highlight text-fg" : "text-muted hover:text-fg"}`}>{v}</button>
           ))}
         </div>
         <div className="ml-auto flex items-center gap-1">
@@ -32,7 +32,7 @@ export default function SchedulePage() {
       <Panel title={view === "day" ? dayLabel(date) : `Week of ${dayLabel(ws, { day: "numeric", month: "short" })}`}>
         {view === "day" ? (
           <>
-            <p className="mb-3 text-xs text-muted">Drag to move, drag the bottom edge to resize, tap to edit. Later slots shift instead of overlapping.</p>
+            <p className="font-hand mb-4 text-lg leading-tight text-muted">drag to move, drag the bottom edge to resize, tap to edit. Later slots shift instead of overlapping.</p>
             <DaySchedule date={date} />
           </>
         ) : (

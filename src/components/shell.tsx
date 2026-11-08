@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { useMe } from "@/lib/client";
+import { Scribble } from "./collage";
 import { StreakBadge } from "./week";
 
 const NAV = [
@@ -38,32 +39,44 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-border bg-bg/85 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4">
-          <Link href="/" className="font-semibold">Daily Framework</Link>
-          <nav className="hidden gap-1 md:flex">
-            {NAV.map((n) => (
-              <Link key={n.href} href={n.href}
-                className={`rounded-lg px-3 py-1.5 text-sm ${path === n.href ? "bg-surface-2 font-medium" : "text-muted hover:text-fg"}`}>
-                {n.label}
-              </Link>
-            ))}
+      <header className="sticky top-0 z-30 border-b-2 border-fg bg-bg/90 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-5 px-4">
+          <Link href="/" className="group relative flex items-baseline gap-1.5 leading-none">
+            <span className="font-display text-3xl italic">Daily</span>
+            <span className="cutout -translate-y-1 rotate-[-3deg] bg-accent text-[0.6rem]">framework</span>
+            <Scribble className="absolute -bottom-2 left-0 h-2.5 w-16 transition-[width] group-hover:w-24" />
+          </Link>
+          <nav className="hidden items-center gap-0.5 md:flex">
+            {NAV.map((n, i) => {
+              const active = path === n.href;
+              return (
+                <Link key={n.href} href={n.href}
+                  className={`px-2.5 py-1 font-mono text-[13px] tracking-tight transition ${active ? "highlight text-fg" : "text-muted hover:text-fg"}`}
+                  style={active ? { rotate: `${i % 2 ? 1 : -1}deg` } : undefined}>
+                  {n.label.toLowerCase()}
+                </Link>
+              );
+            })}
           </nav>
           <div className="ml-auto flex items-center gap-3">
             {mounted && <StreakBadge />}
-            <Link href="/settings" className={`text-sm ${path === "/settings" ? "text-fg" : "text-muted hover:text-fg"}`} aria-label="Settings">⚙</Link>
-            <button onClick={signOut} className="hidden text-sm text-muted hover:text-fg sm:block">Sign out</button>
+            <Link href="/settings" className={`font-mono text-[13px] ${path === "/settings" ? "highlight" : "text-muted hover:text-fg"}`}>settings</Link>
+            <button onClick={signOut} className="font-hand hidden text-lg text-muted hover:text-fg sm:block">sign out</button>
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-4 pb-24 md:pb-8">{mounted ? children : null}</main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden">
-        {NAV.map((n) => (
-          <Link key={n.href} href={n.href} className={`flex flex-col items-center py-2 text-[11px] ${path === n.href ? "text-accent" : "text-muted"}`}>
-            <span className="text-base leading-none">{n.icon}</span>
-            {n.label}
-          </Link>
-        ))}
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 pb-28 md:pb-12">{mounted ? children : null}</main>
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t-2 border-fg bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+        style={{ backgroundImage: "var(--grain)", backgroundBlendMode: "multiply" }}>
+        {NAV.map((n) => {
+          const active = path === n.href;
+          return (
+            <Link key={n.href} href={n.href} className={`flex flex-col items-center gap-0.5 py-2 font-mono text-[10px] ${active ? "text-fg" : "text-muted"}`}>
+              <span className={`text-base leading-none ${active ? "text-accent" : ""}`}>{n.icon}</span>
+              <span className={active ? "highlight" : ""}>{n.label.toLowerCase()}</span>
+            </Link>
+          );
+        })}
       </nav>
     </div>
   );

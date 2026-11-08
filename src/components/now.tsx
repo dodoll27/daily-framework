@@ -7,6 +7,7 @@ import {
 import { fmtDuration, fmtMin, localDate, minutesNow, parseHHMM, sessionMinutes, toHHMM, wallToIso } from "@/lib/time";
 import type { Block, Session, Slot, Task } from "@/lib/types";
 import { TaskSelect } from "./slot-fields";
+import { Arrow, Scrap, Scribble, Stamp } from "./collage";
 import { BlockDot, EnergyTag, ErrorNote, Field, Modal, Panel, Spinner, tint } from "./ui";
 
 /** Best task for a slot: the planned one, else the top open task of the block matching the slot's energy. */
@@ -83,7 +84,7 @@ export function NowPanel() {
     });
 
   return (
-    <Panel title="Now" action={<span className="text-sm text-muted tabular-nums">{now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>}>
+    <Panel title="Now" action={<span className="font-display text-3xl leading-none tabular-nums italic">{now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>}>
       <div className="space-y-4">
         {running ? (
           <RunningCard session={running} block={bmap.get(running.block_id)} task={tasks.find((t) => t.id === running.task_id)}
@@ -92,34 +93,34 @@ export function NowPanel() {
           <SlotCardNow slot={current} block={bmap.get(current.block_id)} task={suggestion} nowMin={nowMin}
             onStart={() => start(current, current.block_id, suggestion?.id ?? null)} busy={busy} />
         ) : (
-          <div className="rounded-xl bg-surface-2 p-4 text-sm">
-            <p className="font-medium">No slot right now.</p>
-            <p className="text-muted">
+          <div className="halftone relative border border-dashed border-fg/30 p-5">
+            <p className="font-display text-2xl">No slot right now.</p>
+            <p className="font-hand text-xl text-muted">
               {next ? <>Next: <b>{bmap.get(next.block_id)?.name}</b> at {fmtMin(next.start_min)}.</> : slots.length ? "Day's plan is done." : <>Nothing planned today. <a className="text-accent hover:underline" href="/plan?today=1">Plan today</a>.</>}
             </p>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-2">
-          <button className="btn border-danger/40 py-3 text-base" disabled={busy} onClick={fried} title="Swap to the top shallow task. No choice needed.">
+          <button className="btn -rotate-1 bg-pink py-3 text-base text-fg hover:bg-pink" disabled={busy} onClick={fried} title="Swap to the top shallow task. No choice needed.">
             🫠 I&apos;m fried
           </button>
-          <button className="btn py-3" disabled={busy} onClick={() => setSwitchOpen(true)}>↪ Something else</button>
+          <button className="btn rotate-[0.6deg] py-3" disabled={busy} onClick={() => setSwitchOpen(true)}>↪ Something else</button>
         </div>
 
-        {toast && <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm">{toast}</p>}
+        {toast && <p className="font-hand -rotate-1 bg-yellow px-3 py-1 text-xl shadow-sm">{toast}</p>}
         <ErrorNote error={error} />
 
         <QuickCapture blocks={blocks} defaultBlock={current?.block_id ?? running?.block_id} />
 
         {next && (current || running) && (
-          <p className="text-sm text-muted">
-            Up next at {fmtMin(next.start_min)}: <BlockDot block={bmap.get(next.block_id)} /> {bmap.get(next.block_id)?.name}
+          <p className="border-t border-dashed border-fg/25 pt-3 text-sm text-muted">
+            <span className="font-mono text-[11px] uppercase">up next · {fmtMin(next.start_min)}</span>{" "} <BlockDot block={bmap.get(next.block_id)} /> {bmap.get(next.block_id)?.name}
             {next.label ? ` — ${next.label}` : ""}
           </p>
         )}
         <FloorStatus />
-        <button className="text-xs text-muted hover:underline" onClick={() => setLogOpen(true)}>Log time I didn&apos;t track</button>
+        <button className="font-hand text-lg text-muted underline decoration-pink decoration-wavy underline-offset-4 hover:text-fg" onClick={() => setLogOpen(true)}>+ log time I didn&apos;t track</button>
       </div>
 
       <Modal open={switchOpen} onClose={() => setSwitchOpen(false)} title="Switch to something else">
@@ -137,16 +138,20 @@ function SlotCardNow({ slot, block, task, nowMin, onStart, busy }: {
 }) {
   const late = nowMin - slot.start_min;
   return (
-    <div className="rounded-xl p-4" style={{ background: tint(block?.color ?? "#888", 0.14) }}>
-      <div className="flex items-center gap-2 text-sm text-muted">
-        <BlockDot block={block} /> {block?.name} · {fmtMin(slot.start_min)}–{fmtMin(slot.end_min)}
-        <span className="ml-auto"><EnergyTag energy={slot.energy} /></span>
+    <div className="relative isolate px-1 pt-2 pb-1">
+      <Scrap color={tint(block?.color ?? "#888", 0.55)} className="-inset-x-1 -top-1 bottom-12 -z-10 -rotate-1" />
+      <div className="relative bg-surface/85 p-4 shadow-sm" style={{ rotate: "0.5deg" }}>
+        <div className="flex items-center gap-2 font-mono text-xs text-muted">
+          <BlockDot block={block} /> <span className="uppercase">{block?.name}</span> · {fmtMin(slot.start_min)}–{fmtMin(slot.end_min)}
+          <span className="ml-auto"><EnergyTag energy={slot.energy} /></span>
+        </div>
+        <p className="font-display mt-2 text-[2rem] leading-[1.05]">
+          {slot.label || (task ? task.title : `Time on ${block?.name.toLowerCase()}`)}
+        </p>
+        <Scribble className="mt-1 h-3 w-32" color={block?.color} />
+        {slot.label && task && <p className="mt-1 text-sm text-muted">{task.title}</p>}
+        {late >= 5 && <p className="font-hand mt-2 text-lg leading-tight text-muted">it&apos;s {fmtMin(nowMin)}, started {fmtDuration(late)} ago. still {fmtDuration(slot.end_min - nowMin)} to go →</p>}
       </div>
-      <p className="mt-2 text-lg leading-snug font-semibold">
-        {slot.label || (task ? task.title : `Time on ${block?.name.toLowerCase()}`)}
-      </p>
-      {slot.label && task && <p className="text-sm text-muted">{task.title}</p>}
-      {late >= 5 && <p className="mt-1 text-sm text-muted">It&apos;s {fmtMin(nowMin)}, this slot started {fmtDuration(late)} ago. Still {fmtDuration(slot.end_min - nowMin)} to go.</p>}
       <button className="btn btn-primary mt-4 w-full py-3 text-base" disabled={busy} onClick={onStart}>▶ Start</button>
     </div>
   );
@@ -159,19 +164,26 @@ function RunningCard({ session, block, task, slot, nowMin, onStop, busy }: {
   const secs = Math.floor((mins * 60) % 60);
   const over = slot ? nowMin - slot.end_min : 0;
   return (
-    <div className="rounded-xl p-4" style={{ background: tint(block?.color ?? "#888", 0.2) }}>
-      <div className="flex items-center gap-2 text-sm text-muted">
-        <BlockDot block={block} /> {block?.name}
-        {session.source === "fried" && <span className="chip">fried mode</span>}
-        {!slot && <span className="chip">off-plan</span>}
+    <div className="relative isolate px-1 pt-2 pb-1">
+      <Scrap color={tint(block?.color ?? "#888", 0.6)} className="-inset-x-1 -top-1 bottom-12 -z-10 rotate-1" />
+      {session.source === "fried" && <Stamp text="· FRIED MODE · SHALLOW ONLY " className="absolute -top-6 -right-3 z-10 size-20 rotate-12" />}
+      <div className="relative bg-surface/85 p-4 shadow-sm" style={{ rotate: "-0.5deg" }}>
+        <div className="flex items-center gap-2 font-mono text-xs text-muted">
+          <BlockDot block={block} /> <span className="uppercase">{block?.name}</span>
+          {!slot && <span className="chip">off-plan</span>}
+        </div>
+        <p className="font-display mt-2 text-[1.7rem] leading-[1.05]">{task?.title ?? slot?.label ?? `Time on ${block?.name.toLowerCase()}`}</p>
+        <p className="font-display mt-3 text-7xl leading-none tabular-nums">
+          {Math.floor(mins / 60)}:{String(Math.floor(mins % 60)).padStart(2, "0")}
+          <span className="font-mono text-2xl text-muted">:{String(secs).padStart(2, "0")}</span>
+        </p>
+        {over > 0 && (
+          <p className="font-hand mt-2 flex items-center gap-1 text-lg leading-tight text-danger">
+            running over by {fmtDuration(over)}. the rest of the day shifts when you stop <Arrow className="h-5 w-10 shrink-0" color="var(--danger)" />
+          </p>
+        )}
       </div>
-      <p className="mt-2 text-lg leading-snug font-semibold">{task?.title ?? slot?.label ?? `Time on ${block?.name.toLowerCase()}`}</p>
-      <p className="mt-2 font-mono text-4xl tabular-nums">
-        {Math.floor(mins / 60)}:{String(Math.floor(mins % 60)).padStart(2, "0")}
-        <span className="text-xl text-muted">:{String(secs).padStart(2, "0")}</span>
-      </p>
-      {over > 0 && <p className="mt-1 text-sm text-muted">Running over by {fmtDuration(over)}. The rest of the day will shift when you stop.</p>}
-      <button className="btn mt-4 w-full py-3 text-base" disabled={busy} onClick={onStop}>■ Stop</button>
+      <button className="btn mt-4 w-full bg-fg py-3 text-base text-surface hover:bg-fg" style={{ boxShadow: "3px 3px 0 var(--yellow)" }} disabled={busy} onClick={onStop}>■ Stop</button>
     </div>
   );
 }
@@ -198,7 +210,7 @@ function QuickCapture({ blocks, defaultBlock }: { blocks: Block[]; defaultBlock?
           {blocks.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
         </select>
       </div>
-      <p className="text-xs text-muted">{saved ? "Added to the shallow list ✓" : "Goes to the shallow list, so it's always full."}</p>
+      <p className="font-hand text-base text-muted">{saved ? "pinned to the shallow list ✓" : "mindless to-dos go to the shallow list, so it's always full"}</p>
     </form>
   );
 }
@@ -206,9 +218,9 @@ function QuickCapture({ blocks, defaultBlock }: { blocks: Block[]; defaultBlock?
 function FloorStatus() {
   const { data } = useStreak();
   if (!data) return null;
-  if (data.today_counts) return <p className="text-sm text-ok">✓ Today counts for the streak.</p>;
+  if (data.today_counts) return <p className="font-hand text-xl text-ok">✓ today counts for the streak!</p>;
   const needs = [data.today_needs.floor && "a job-search slot", data.today_needs.other && "one other session"].filter(Boolean);
-  return <p className="text-sm text-muted">Floor day: {needs.join(" + ")} keeps the 🔥 {data.streak} streak alive.</p>;
+  return <p className="font-hand text-xl leading-tight text-muted">floor day: {needs.join(" + ")} keeps the 🔥 {data.streak} streak alive</p>;
 }
 
 function SwitchForm({ blocks, onStart }: { blocks: Block[]; onStart: (blockId: string, taskId: string | null) => void }) {

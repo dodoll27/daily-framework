@@ -6,8 +6,8 @@ import type { Block, Energy } from "@/lib/types";
 export function BlockDot({ block, className = "" }: { block?: Block; className?: string }) {
   return (
     <span
-      className={`inline-block size-2.5 shrink-0 rounded-full ${className}`}
-      style={{ background: block?.color ?? "var(--muted)" }}
+      className={`inline-block size-3 shrink-0 rotate-12 border border-fg/60 ${className}`}
+      style={{ background: block?.color ?? "var(--muted)", clipPath: "polygon(8% 0, 100% 10%, 90% 100%, 0 88%)" }}
     />
   );
 }
@@ -30,13 +30,19 @@ export function ProgressBar({
   color: string;
 }) {
   return (
-    <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-surface-2">
+    // a marker swipe on a dotted strip, with a pencil tick for "pace"
+    <div className="halftone relative h-3.5 w-full border-y border-fg/15">
       <div
-        className="h-full rounded-full transition-[width] duration-500"
-        style={{ width: `${Math.min(100, value * 100)}%`, background: color }}
+        className="absolute inset-y-[-2px] left-0 transition-[width] duration-500 mix-blend-multiply"
+        style={{
+          width: `${Math.min(100, value * 100)}%`,
+          background: color,
+          opacity: 0.85,
+          clipPath: "polygon(0 12%, 100% 0, 99% 50%, 100% 92%, 0 100%, 1% 55%)",
+        }}
       />
       {expected !== undefined && expected > 0 && expected < 1 && (
-        <div className="absolute inset-y-0 w-px bg-fg/40" style={{ left: `${expected * 100}%` }} title="Pace for today" />
+        <div className="absolute -inset-y-1.5 w-[2px] rotate-6 bg-fg" style={{ left: `${expected * 100}%` }} title="Pace for today" />
       )}
     </div>
   );
@@ -47,17 +53,19 @@ export function Panel({
   action,
   children,
   className = "",
+  tape = true,
 }: {
   title?: React.ReactNode;
   action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  tape?: boolean;
 }) {
   return (
-    <section className={`card p-4 ${className}`}>
+    <section className={`card p-4 pt-5 ${tape ? "taped" : ""} ${className}`}>
       {(title || action) && (
-        <div className="mb-3 flex items-center justify-between gap-2">
-          {title && <h2 className="text-sm font-semibold tracking-wide text-muted uppercase">{title}</h2>}
+        <div className="mb-4 flex items-center justify-between gap-2">
+          {title && <h2 className="cutout -ml-1">{title}</h2>}
           {action}
         </div>
       )}
@@ -75,15 +83,15 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#3a2f1f]/35 p-0 pt-6 backdrop-blur-[2px] sm:items-center sm:p-4" onClick={onClose}>
       <div
-        className="card max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-b-none p-5 sm:rounded-b-[0.875rem]"
+        className="card taped max-h-[90dvh] w-full max-w-md overflow-y-auto p-5 sm:-rotate-[0.6deg]"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-label={title}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold">{title}</h2>
+          <h2 className="font-display text-2xl leading-none">{title}</h2>
           <button className="btn btn-ghost px-2 py-1" onClick={onClose} aria-label="Close">
             ✕
           </button>
@@ -97,14 +105,14 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block space-y-1">
-      <span className="text-xs font-medium text-muted">{label}</span>
+      <span className="font-mono text-[11px] tracking-wide text-muted uppercase">{label}</span>
       {children}
     </label>
   );
 }
 
 export function Spinner() {
-  return <div className="py-8 text-center text-sm text-muted">Loading…</div>;
+  return <div className="font-hand py-8 text-center text-xl text-muted">sorting the scraps…</div>;
 }
 
 export function ErrorNote({ error }: { error?: unknown }) {

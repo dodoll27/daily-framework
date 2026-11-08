@@ -18,15 +18,15 @@ export default function TasksPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h1 className="text-lg font-semibold">Tasks</h1>
-        <div className="ml-auto flex rounded-lg border border-border p-0.5 text-sm">
+        <h1 className="text-4xl leading-none">Tasks</h1>
+        <div className="ml-auto flex gap-1 font-mono text-[13px]">
           {(["all", "deep", "shallow"] as const).map((f) => (
-            <button key={f} onClick={() => setFilter(f)} className={`rounded-md px-3 py-1 capitalize ${filter === f ? "bg-surface-2 font-medium" : "text-muted"}`}>{f}</button>
+            <button key={f} onClick={() => setFilter(f)} className={`px-2 py-1 ${filter === f ? "highlight text-fg" : "text-muted hover:text-fg"}`}>{f}</button>
           ))}
         </div>
         <button className="btn" onClick={() => setShowArchived(!showArchived)}>{showArchived ? "Open tasks" : "Archived"}</button>
       </div>
-      <p className="text-sm text-muted">
+      <p className="font-hand text-lg leading-snug text-muted">
         <b>Deep</b>: focus or intake (docs, courses, design, interview prep). <b>Shallow</b>: autopilot output (tests, refactors, CSS, forms, follow-ups, flashcards).
       </p>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -58,7 +58,7 @@ function TaskList({ tasks, archived }: { tasks: Task[]; archived: boolean }) {
     <ul className="mb-3 divide-y divide-border">
       {tasks.map((t, i) => (
         <li key={t.id} className="group flex items-center gap-2 py-1.5 text-sm">
-          <button className="chip w-16 justify-center" title="Toggle deep / shallow"
+          <button className="chip w-[5.2rem] shrink-0 justify-center whitespace-nowrap" title="Toggle deep / shallow"
             onClick={() => patch(t, { energy: t.energy === "deep" ? "shallow" : "deep" })}>
             {t.energy === "deep" ? "◆ deep" : "◇ shallow"}
           </button>

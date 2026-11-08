@@ -38,7 +38,7 @@ export function route<P = Record<string, string>>(
       const params = routeCtx?.params ? await routeCtx.params : ({} as P);
       const result = await fn({ supabase, user, req }, params);
       if (result instanceof NextResponse) return withCookies(result);
-      return withCookies(NextResponse.json(result ?? { ok: true }));
+      return withCookies(NextResponse.json(result === undefined ? { ok: true } : result));
     } catch (e) {
       if (e instanceof HttpError) return withCookies(NextResponse.json({ error: e.message }, { status: e.status }));
       console.error(e);

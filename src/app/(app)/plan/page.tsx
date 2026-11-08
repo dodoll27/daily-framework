@@ -92,8 +92,8 @@ function PlanEditor({ date, setDate, existing }: { date: string; setDate: (d: st
     <div className="mx-auto max-w-2xl space-y-4">
       <div className="flex items-center gap-2">
         <div>
-          <h1 className="text-lg font-semibold">Plan {date === localDate() ? "today" : date === addDays(localDate(), 1) ? "tomorrow" : dayLabel(date)}</h1>
-          <p className="text-sm text-muted">{dayLabel(date)} · decide now, not in the moment.</p>
+          <h1 className="text-4xl leading-none">Plan {date === localDate() ? "today" : date === addDays(localDate(), 1) ? "tomorrow" : dayLabel(date)}</h1>
+          <p className="font-hand mt-1 text-xl text-muted">{dayLabel(date)} · decide now, not in the moment</p>
         </div>
         <div className="ml-auto flex gap-1">
           <button className="btn px-2.5" onClick={() => setDate(addDays(date, -1))} aria-label="Previous day">‹</button>
@@ -103,11 +103,12 @@ function PlanEditor({ date, setDate, existing }: { date: string; setDate: (d: st
 
       <Panel title="1 · Day type: what's the workout?">
         <div className="grid gap-2 sm:grid-cols-3">
-          {templates.map((t) => (
+          {templates.map((t, i) => (
             <button key={t.id} onClick={() => pickTemplate(t)}
-              className={`card p-3 text-left transition ${templateId === t.id ? "ring-2 ring-accent" : "hover:bg-surface-2"}`}>
-              <div className="font-medium">{t.name}</div>
-              <div className="text-xs text-muted">{t.description}</div>
+              style={{ rotate: `${[-1.2, 0.8, -0.5][i % 3]}deg` }}
+              className={`card p-3 text-left transition hover:-translate-y-0.5 ${templateId === t.id ? "taped bg-yellow! shadow-[4px_4px_0_var(--fg)]" : ""}`}>
+              <div className="font-display text-2xl leading-none">{t.name}</div>
+              <div className="font-hand mt-1 text-base leading-tight text-muted">{t.description}</div>
             </button>
           ))}
         </div>
@@ -124,9 +125,9 @@ function PlanEditor({ date, setDate, existing }: { date: string; setDate: (d: st
       </Panel>
 
       {behind && behindP && (
-        <div className="card flex flex-wrap items-center gap-3 p-4" style={{ background: tint(behind.color, 0.12) }}>
+        <div className="card flex flex-wrap items-center gap-3 border-l-[6px] p-4 -rotate-[0.4deg]" style={{ borderLeftColor: behind.color }}>
           <div className="text-sm">
-            <b>{behind.name}</b> is furthest behind this week
+            <b className="highlight">{behind.name}</b> is furthest behind this week
             <span className="text-muted">
               {" "}({behindP.target_sessions ? `${behindP.sessions}/${behindP.target_sessions} sessions` : `${fmtHours(behindP.minutes)} of ${fmtHours(behindP.target_minutes ?? 0)}`})
             </span>
@@ -147,11 +148,11 @@ function PlanEditor({ date, setDate, existing }: { date: string; setDate: (d: st
               const b = bmap.get(s.block_id);
               const t = tasks.find((x) => x.id === s.task_id);
               return (
-                <li key={i} className="flex items-center gap-3 rounded-lg border-l-4 p-2 pl-3" style={{ borderColor: b?.color, background: tint(b?.color ?? "#888", 0.1) }}>
-                  <div className="w-24 shrink-0 text-sm tabular-nums text-muted">{fmtMin(s.start_min)}–{fmtMin(s.end_min)}</div>
+                <li key={i} className="flex items-center gap-3 border border-fg/15 border-l-[5px] bg-surface p-2 pl-3 shadow-[1px_2px_0_rgba(29,27,24,0.1)]" style={{ borderLeftColor: b?.color, backgroundImage: `linear-gradient(${tint(b?.color ?? "#888", 0.18)}, ${tint(b?.color ?? "#888", 0.18)})`, rotate: `${i % 2 ? 0.3 : -0.3}deg` }}>
+                  <div className="w-24 shrink-0 font-mono text-[11px] tabular-nums text-muted">{fmtMin(s.start_min)}–{fmtMin(s.end_min)}</div>
                   <button className="min-w-0 flex-1 text-left" onClick={() => setEditing(i)}>
                     <div className="flex items-center gap-2 text-sm font-medium"><BlockDot block={b} />{b?.name} <EnergyTag energy={s.energy} /></div>
-                    <div className="truncate text-sm text-muted">
+                    <div className="font-display truncate text-lg leading-tight">
                       {s.label || `${fmtDuration(s.end_min - s.start_min)} on ${t?.title ?? b?.name.toLowerCase()}`}
                     </div>
                   </button>

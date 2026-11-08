@@ -50,8 +50,8 @@ export default function ReviewPage() {
     <div className="mx-auto max-w-2xl space-y-4">
       <div className="flex items-center gap-2">
         <div>
-          <h1 className="text-lg font-semibold">Review</h1>
-          <p className="text-sm text-muted">{dayLabel(date)}</p>
+          <h1 className="text-4xl leading-none">Review</h1>
+          <p className="font-hand mt-1 text-xl text-muted">{dayLabel(date)}</p>
         </div>
         <div className="ml-auto flex gap-1">
           <button className="btn px-2.5" onClick={() => setDate(addDays(date, -1))} aria-label="Previous day">‹</button>
@@ -59,9 +59,9 @@ export default function ReviewPage() {
         </div>
       </div>
 
-      <div className="card p-5 text-center">
-        <div className="text-4xl font-semibold tabular-nums">{fmtDuration(honoured)}</div>
-        <div className="text-sm text-muted">time honoured{planned ? ` · ${fmtDuration(planned)} planned` : ""}</div>
+      <div className="card taped torn halftone relative -rotate-1 p-6 text-center">
+        <div className="font-display text-7xl leading-none tabular-nums">{fmtDuration(honoured)}</div>
+        <div className="font-hand mt-1 text-2xl"><span className="highlight">time honoured</span>{planned ? <span className="text-muted"> · of {fmtDuration(planned)} planned</span> : ""}</div>
       </div>
 
       <Panel title="Slots">
@@ -73,13 +73,13 @@ export default function ReviewPage() {
             const plan = s.end_min - s.start_min;
             const t = tasks?.find((x) => x.id === s.task_id);
             return (
-              <li key={s.id} className="flex flex-wrap items-center gap-3 rounded-lg bg-surface-2/60 p-3">
+              <li key={s.id} className="flex flex-wrap items-center gap-3 border border-fg/15 border-l-[5px] bg-surface p-3" style={{ borderLeftColor: b?.color }}>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 text-sm font-medium">
-                    <BlockDot block={b} /> {b?.name}
-                    <span className="font-normal text-muted tabular-nums">{fmtMin(s.start_min)}–{fmtMin(s.end_min)}</span>
+                    <span className="font-mono text-[12px] font-bold uppercase">{b?.name}</span>
+                    <span className="font-mono text-[11px] font-normal text-muted tabular-nums">{fmtMin(s.start_min)}–{fmtMin(s.end_min)}</span>
                   </div>
-                  <div className="truncate text-sm text-muted">{s.label || t?.title}</div>
+                  <div className="font-display truncate text-xl leading-tight">{s.label || t?.title}</div>
                   <div className="mt-1 text-sm tabular-nums">
                     <span className={actual >= plan * 0.9 ? "text-ok" : ""}>{fmtDuration(actual)}</span>
                     <span className="text-muted"> / {fmtDuration(plan)}</span>

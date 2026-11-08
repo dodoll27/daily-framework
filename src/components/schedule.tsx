@@ -110,7 +110,7 @@ export function DaySchedule({ date, compact = false }: { date: string; compact?:
   return (
     <div>
       {slots.length === 0 && (
-        <p className="mb-3 text-sm text-muted">Nothing planned. <a className="text-accent hover:underline" href="/plan">Plan this day</a> or add a slot.</p>
+        <p className="font-hand mb-3 text-xl text-muted">nothing planned yet. <a className="text-accent underline decoration-wavy" href="/plan">plan this day</a> or add a slot.</p>
       )}
       <div
         ref={colRef}
@@ -121,8 +121,8 @@ export function DaySchedule({ date, compact = false }: { date: string; compact?:
         onPointerCancel={() => (setDrag(null), setPreview(null))}
       >
         {hours.map((m) => (
-          <div key={m} className="absolute inset-x-0 border-t border-border" style={{ top: (m - lo) * PX }}>
-            <span className="absolute -top-2 -left-10 w-8 text-right text-[11px] text-muted tabular-nums">{fmtMin(m)}</span>
+          <div key={m} className="absolute inset-x-0 border-t border-dashed border-fg/15" style={{ top: (m - lo) * PX }}>
+            <span className="absolute -top-2 -left-10 w-8 text-right font-mono text-[10px] text-muted tabular-nums">{fmtMin(m)}</span>
           </div>
         ))}
 
@@ -144,13 +144,13 @@ export function DaySchedule({ date, compact = false }: { date: string; compact?:
         ))}
 
         {isToday && nowMin >= lo && nowMin <= hi && (
-          <div className="pointer-events-none absolute inset-x-0 z-20 border-t-2 border-danger" style={{ top: (nowMin - lo) * PX }}>
-            <span className="absolute -top-1.5 -left-1.5 size-3 rounded-full bg-danger" />
+          <div className="pointer-events-none absolute inset-x-0 z-20 h-0.5 -rotate-[0.4deg] bg-pink" style={{ top: (nowMin - lo) * PX }}>
+            <span className="font-hand absolute -top-5 right-4 -rotate-6 bg-bg/70 px-1 text-lg leading-none text-pink">now</span>
           </div>
         )}
       </div>
 
-      <button className="btn mt-3 w-full" onClick={startAdd}>+ Add slot</button>
+      <button className="btn mt-4 w-full border-dashed" onClick={startAdd}>+ Add slot</button>
 
       <Modal open={!!editing} onClose={() => setEditing(null)} title="Edit slot">
         {editing && <SlotEditor slot={editing} onDone={() => setEditing(null)} />}
@@ -182,22 +182,26 @@ function SlotCard({
   const done = slot.status === "honoured" || slot.status === "adjusted";
   return (
     <div
-      className={`no-select absolute right-3 left-0 z-10 cursor-grab overflow-hidden rounded-lg border-l-4 px-2 py-1 text-sm active:cursor-grabbing ${dragging ? "shadow-lg ring-2 ring-accent" : ""} ${active ? "ring-2 ring-fg/30" : ""} ${slot.status === "skipped" ? "opacity-40" : ""}`}
-      style={{ top, height: Math.max(height - 2, 18), background: tint(color, done ? 0.3 : 0.16), borderColor: color }}
+      className={`no-select absolute right-3 left-0 z-10 cursor-grab overflow-hidden border border-fg/20 border-l-[5px] px-2 py-1 text-sm transition-shadow active:cursor-grabbing ${dragging ? "z-30 shadow-[4px_4px_0_var(--fg)]" : "shadow-[1px_2px_0_rgba(29,27,24,0.12)]"} ${active ? "outline-2 outline-offset-2 outline-pink outline-dashed" : ""} ${slot.status === "skipped" ? "opacity-40 line-through" : ""}`}
+      style={{
+        top, height: Math.max(height - 2, 18), borderLeftColor: color,
+        background: `linear-gradient(${tint(color, done ? 0.42 : 0.24)}, ${tint(color, done ? 0.42 : 0.24)}), var(--surface)`,
+        rotate: dragging ? "-1deg" : undefined,
+      }}
       onPointerDown={(e) => onPointerDown(e, slot, "move")}
     >
       <div className="flex items-baseline justify-between gap-2">
-        <span className="truncate font-medium">
+        <span className="truncate font-mono text-[12px] font-bold tracking-tight uppercase">
           {block?.name}
           {slot.energy === "shallow" && <span className="ml-1 text-xs text-muted">◇</span>}
           {done && <span className="ml-1 text-xs text-ok">✓</span>}
         </span>
-        <span className="shrink-0 text-[11px] text-muted tabular-nums">
+        <span className="shrink-0 font-mono text-[10px] text-muted tabular-nums">
           {fmtMin(slot.start_min)}–{fmtMin(slot.end_min)}
         </span>
       </div>
-      {!compact && height > 36 && (
-        <div className="truncate text-xs text-muted">{slot.label || task?.title || `${fmtDuration(slot.end_min - slot.start_min)} on ${block?.name.toLowerCase()}`}</div>
+      {(compact ? height > 50 : height > 36) && (
+        <div className="font-display truncate text-[15px] leading-tight">{slot.label || task?.title || `${fmtDuration(slot.end_min - slot.start_min)} on ${block?.name.toLowerCase()}`}</div>
       )}
       <div className="absolute inset-x-0 bottom-0 h-2 cursor-ns-resize" onPointerDown={(e) => onPointerDown(e, slot, "resize")} />
     </div>
@@ -244,18 +248,18 @@ export function WeekSchedule({ start, onPick }: { start: string; onPick?: (date:
   return (
     <div className="grid grid-cols-7 gap-1">
       {days.map((d) => (
-        <button key={d} className={`rounded-md py-1 text-center text-xs ${d === today ? "bg-accent text-accent-fg" : "text-muted hover:bg-surface-2"}`} onClick={() => onPick?.(d)}>
+        <button key={d} className={`py-1 text-center font-mono text-[11px] ${d === today ? "highlight text-fg" : "text-muted hover:text-fg"}`} onClick={() => onPick?.(d)}>
           {dayLabel(d, { weekday: "short" })} {parseDate(d).getDate()}
         </button>
       ))}
       {days.map((d) => (
-        <div key={d} className="relative rounded-md bg-surface-2/60" style={{ height: (hi - lo) * scale }} onClick={() => onPick?.(d)}>
+        <div key={d} className="halftone relative border border-fg/10" style={{ height: (hi - lo) * scale }} onClick={() => onPick?.(d)}>
           {slots.filter((s) => s.date === d).map((s) => {
             const b = bmap.get(s.block_id);
             return (
-              <div key={s.id} className="absolute inset-x-0.5 overflow-hidden rounded-sm border-l-2 px-0.5 text-[10px] leading-tight"
+              <div key={s.id} className="absolute inset-x-0.5 overflow-hidden border border-fg/15 border-l-[3px] bg-surface px-0.5 font-mono text-[9px] leading-tight"
                 title={`${b?.name} ${fmtMin(s.start_min)}–${fmtMin(s.end_min)}`}
-                style={{ top: (s.start_min - lo) * scale, height: Math.max(4, (s.end_min - s.start_min) * scale - 1), background: tint(b?.color ?? "#888", 0.25), borderColor: b?.color }}>
+                style={{ top: (s.start_min - lo) * scale, height: Math.max(4, (s.end_min - s.start_min) * scale - 1), backgroundImage: `linear-gradient(${tint(b?.color ?? "#888", 0.35)}, ${tint(b?.color ?? "#888", 0.35)})`, borderLeftColor: b?.color }}>
                 <span className="hidden sm:inline">{b?.name}</span>
               </div>
             );

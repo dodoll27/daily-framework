@@ -13,7 +13,7 @@ export default function WeekPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <div className="flex items-center gap-2">
-        <h1 className="text-lg font-semibold">Week of {dayLabel(start, { day: "numeric", month: "long" })}</h1>
+        <h1 className="text-4xl leading-none">Week of {dayLabel(start, { day: "numeric", month: "long" })}</h1>
         <div className="ml-auto flex gap-1">
           <button className="btn px-2.5" onClick={() => setStart(addDays(start, -7))} aria-label="Previous week">‹</button>
           <button className="btn" onClick={() => setStart(weekStart(localDate()))}>This week</button>

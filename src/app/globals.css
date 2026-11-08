@@ -1,31 +1,30 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #f7f7f5;
-  --surface: #ffffff;
-  --surface-2: #f1f1ee;
-  --fg: #1a1a19;
-  --muted: #6b6b66;
-  --border: #e4e4df;
-  --accent: #4f46e5;
-  --accent-fg: #ffffff;
-  --danger: #dc2626;
-  --ok: #059669;
-}
+/* ─────────────────────────────────────────────────────────────
+   Light mixed media: warm paper, grain, tape, cutouts,
+   riso-ink overlays and hand-drawn marks.
+   ───────────────────────────────────────────────────────────── */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111110;
-    --surface: #1a1a19;
-    --surface-2: #232321;
-    --fg: #ececea;
-    --muted: #9a9a94;
-    --border: #2f2f2c;
-    --accent: #818cf8;
-    --accent-fg: #111110;
-    --danger: #f87171;
-    --ok: #34d399;
-  }
+:root {
+  --bg: #efe9dd; /* kraft-ish paper */
+  --surface: #fbf8f1; /* cream sheet */
+  --surface-2: #f1ebdf;
+  --fg: #1d1b18; /* ink */
+  --muted: #6f675c;
+  --border: #d9cfbd;
+  --accent: #2b4bd8; /* riso blue */
+  --accent-fg: #fbf8f1;
+  --pink: #ff5c8a; /* fluorescent pink */
+  --yellow: #ffd84d;
+  --danger: #d6341e;
+  --ok: #1f8a5b;
+  --tape: rgba(246, 226, 160, 0.78);
+
+  /* SVG grain, reused as an overlay */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.25 0 0 0 0 0.18 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --halftone: radial-gradient(circle, rgba(29, 27, 24, 0.16) 1px, transparent 1.4px);
+  --torn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10' preserveAspectRatio='none'%3E%3Cpath d='M0 0h200v4l-4 3-5-2-6 4-4-3-7 2-5-3-6 4-5-2-6 3-4-4-7 3-5-2-5 4-6-3-4 2-7-3-5 4-5-2-6 3-4-3-6 4-5-3-6 2-5-3-4 4-7-2-5 3-5-3-6 4-4-2-6 3-5-4-6 3-5-2-4 4-6-3-5 2-6-3V0z'/%3E%3C/svg%3E");
+  color-scheme: light;
 }
 
 @theme inline {
@@ -37,87 +36,223 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-pink: var(--pink);
+  --color-yellow: var(--yellow);
   --color-danger: var(--danger);
   --color-ok: var(--ok);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-space-mono);
+  --font-display: var(--font-instrument-serif);
+  --font-hand: var(--font-caveat);
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
-  background: var(--bg);
   color: var(--fg);
+  background-color: var(--bg);
+  /* grain + faint ledger lines + a soft pink wash in one corner */
+  background-image:
+    var(--grain),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(43, 75, 216, 0.06) 31px 32px),
+    radial-gradient(60rem 30rem at 100% 0%, rgba(255, 92, 138, 0.1), transparent 60%),
+    radial-gradient(50rem 30rem at 0% 100%, rgba(255, 216, 77, 0.14), transparent 60%);
+  background-attachment: fixed;
 }
 
+::selection {
+  background: var(--yellow);
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* ── paper sheet with grain; panels get tape */
 @utility card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.875rem;
+  position: relative;
+  background-color: var(--surface);
+  background-image: var(--grain);
+  background-size: 180px;
+  background-blend-mode: multiply;
+  border: 1px solid rgba(29, 27, 24, 0.12);
+  border-radius: 3px;
+  box-shadow:
+    0 1px 0 rgba(29, 27, 24, 0.05),
+    0 10px 24px -14px rgba(60, 40, 10, 0.35);
 }
 
+/* strip of masking tape on top of an element */
+@utility taped {
+  &::before {
+    content: "";
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    width: 92px;
+    height: 22px;
+    translate: -50% 0;
+    rotate: -2.5deg;
+    background: var(--tape);
+    background-image: var(--grain);
+    background-blend-mode: multiply;
+    clip-path: polygon(3% 0, 97% 4%, 100% 30%, 97% 55%, 100% 100%, 2% 96%, 0 65%, 3% 35%);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+/* torn bottom edge */
+@utility torn {
+  &::after {
+    content: "";
+    position: absolute;
+    left: -1px;
+    right: -1px;
+    bottom: -9px;
+    height: 10px;
+    background: var(--surface);
+    mask: var(--torn) center / 100% 100% no-repeat;
+    -webkit-mask: var(--torn) center / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+}
+
+/* black cutout label, like a ransom-note strip */
+@utility cutout {
+  display: inline-block;
+  background: var(--fg);
+  color: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem 0.15rem;
+  clip-path: polygon(0 6%, 4% 0, 100% 3%, 98% 92%, 100% 100%, 1% 97%);
+  rotate: -1.2deg;
+}
+
+@utility halftone {
+  background-image: var(--halftone);
+  background-size: 7px 7px;
+}
+
+@utility font-hand {
+  font-family: var(--font-caveat);
+}
+
+/* ── buttons: ink outline with offset riso shadow */
 @utility btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  border-radius: 0.625rem;
+  border-radius: 3px;
   padding: 0.5rem 0.875rem;
   font-size: 0.875rem;
   font-weight: 500;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--fg);
   background: var(--surface);
-  transition: background 0.15s, opacity 0.15s;
+  box-shadow: 2px 2px 0 var(--fg);
+  transition:
+    transform 0.08s,
+    box-shadow 0.08s,
+    background 0.15s;
   cursor: pointer;
   &:hover {
-    background: var(--surface-2);
+    background: #fff;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--fg);
+  }
+  &:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 var(--fg);
   }
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: default;
+    transform: none;
+    box-shadow: 2px 2px 0 var(--fg);
   }
 }
 
 @utility btn-primary {
   background: var(--accent);
   color: var(--accent-fg);
-  border-color: transparent;
+  box-shadow: 3px 3px 0 var(--pink);
   &:hover {
     background: var(--accent);
-    opacity: 0.9;
+    box-shadow: 4px 4px 0 var(--pink);
   }
 }
 
 @utility btn-ghost {
   background: transparent;
   border-color: transparent;
+  box-shadow: none;
+  &:hover {
+    background: rgba(29, 27, 24, 0.05);
+    box-shadow: none;
+    transform: none;
+  }
+  &:active {
+    transform: none;
+  }
 }
 
+/* ── inputs: index-card fields */
 @utility input {
   width: 100%;
-  border-radius: 0.625rem;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border-radius: 2px;
+  border: 1px solid rgba(29, 27, 24, 0.25);
+  background: #fffdf8;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   outline: none;
   &:focus {
     border-color: var(--accent);
+    box-shadow: 2px 2px 0 var(--yellow);
   }
 }
 
+/* ── sticker chip */
 @utility chip {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  border-radius: 999px;
-  padding: 0.125rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: var(--surface-2);
-  color: var(--muted);
+  border-radius: 2px;
+  padding: 0.1rem 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  background: #fff;
+  border: 1px dashed rgba(29, 27, 24, 0.35);
+  color: var(--fg);
+}
+
+/* highlighter swipe behind text */
+@utility highlight {
+  background-image: linear-gradient(100deg, transparent 2%, var(--yellow) 4%, var(--yellow) 96%, transparent 98%);
+  background-size: 100% 55%;
+  background-position: 0 85%;
+  background-repeat: no-repeat;
+  padding: 0 0.15em;
 }
 
 .no-select {
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+input[type="range"] {
+  accent-color: var(--pink);
 }
