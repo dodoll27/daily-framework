@@ -19,7 +19,7 @@ Mobile first, and you can install it as an app (PWA).
 
 ## Built with
 
-Next.js 16 · TypeScript · Tailwind v4 · Supabase (Postgres + auth) · Vercel
+Next.js 16 · TypeScript · Tailwind v4 · Supabase (Postgres + auth) · Vercel · Claude
 
 ## Run it locally
 
