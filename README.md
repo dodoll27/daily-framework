@@ -38,14 +38,6 @@ Next.js 16 · TypeScript · Tailwind v4 · Supabase (Postgres + auth) · Vercel
 
 Tip: while developing, turn off **Authentication → Providers → Email → Confirm email** in Supabase so sign-up is instant.
 
-## Deploy
-
-1. Import the repo into Vercel and add the Supabase integration (or set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` yourself).
-2. In Supabase → **Authentication → URL Configuration**:
-   - **Site URL**: your production URL
-   - **Redirect URLs**: `https://your-app.vercel.app/**`, `https://*-your-team.vercel.app/**` (previews) and `http://localhost:3000/**`
-3. Push to `main` and Vercel does the rest.
-
 <details>
 <summary><strong>REST API</strong></summary>
 
