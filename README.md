@@ -1,37 +1,55 @@
 # Daily Framework
 
-The plan is the default. Decide the evening before; during the day the app says what's next.
-Slots are measured by **time honoured**, never by finishing a task.
+A planner for people who are tired of deciding what to do next.
 
-Next.js (App Router) · TypeScript · Tailwind v4 · Supabase (Postgres + auth) · installable PWA.
+You plan tomorrow the evening before. During the day the app just tells you what's next, so there are no decisions in the moment. A slot counts when you **honour the time**, not when you finish the task. Show up, do the hour, done.
 
-## Setup
+## How it works
+
+- **Blocks** are the big areas of your life (job search, learning, sport, social…). Each one has a weekly target in hours.
+- **Plan tomorrow** by picking a day type. Its template fills in the slots, and whichever block is furthest behind gets the first good slot.
+- **Now** shows the current slot, a timer and a quick capture. Feeling fried? One tap swaps you to an easy shallow task and the time still counts.
+- **Review** at the end of the day: planned vs actual, one tap per slot, plus an optional mood and note.
+- **Week** shows hours per block against target, so you can see what's slipping.
+- **Streak**: a day counts if you did at least 15 min of job search plus one other session. Rest days (🧊) don't break it.
+
+A template is a default, not a rule. Targets are starting points too, so shift them as life shifts.
+
+Mobile first, and you can install it as an app (PWA).
+
+## Built with
+
+Next.js 16 · TypeScript · Tailwind v4 · Supabase (Postgres + auth) · Vercel
+
+## Run it locally
 
 1. Create a Supabase project.
-2. In the SQL editor, run `supabase/migrations/0001_init.sql`. It creates the six tables with
-   row-level security and seeds every new user with the five blocks, three day templates and a few tasks.
-3. `cp .env.example .env.local` and fill in the project URL and publishable (anon) key.
-4. `npm install && npm run dev` and open http://localhost:3000. Create an account.
+2. In the Supabase SQL editor, run `supabase/migrations/0001_init.sql`. It creates the tables, row-level security and the starter blocks, templates and tasks for every new user.
+3. Copy the env file and fill in your Supabase URL and publishable key:
+   ```bash
+   cp .env.example .env.local
+   ```
+4. Start it:
+   ```bash
+   npm install
+   npm run dev
+   ```
+5. Open http://localhost:3000 and create an account.
 
-For instant sign-up while developing, turn off **Auth → Providers → Email → Confirm email** in Supabase,
-and add `http://localhost:3000/auth/callback` (and your Vercel URL) to **Auth → URL configuration → Redirect URLs**
-for magic links.
+Tip: while developing, turn off **Authentication → Providers → Email → Confirm email** in Supabase so sign-up is instant.
 
-## Screens
+## Deploy
 
-| Route       | What                                                                                        |
-| ----------- | ------------------------------------------------------------------------------------------- |
-| `/`         | Now (mobile home). Wide screens: Schedule, Now and Week side by side                        |
-| `/plan`     | Plan tomorrow: day type → template fills slots; furthest-behind block gets the first good slot |
-| `/schedule` | Day timeline (drag to move, drag bottom edge to resize; later slots shift) + week view      |
-| `/review`   | End of day: planned vs actual per slot, one tap to confirm or adjust, optional mood/note    |
-| `/week`     | Hours per block vs target, day-type mix, home vs outside                                    |
-| `/tasks`    | Per-block task lists tagged deep / shallow                                                  |
-| `/settings` | Blocks + weekly targets, editable day templates                                             |
+1. Import the repo into Vercel and add the Supabase integration (or set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` yourself).
+2. In Supabase → **Authentication → URL Configuration**:
+   - **Site URL**: your production URL
+   - **Redirect URLs**: `https://your-app.vercel.app/**`, `https://*-your-team.vercel.app/**` (previews) and `http://localhost:3000/**`
+3. Push to `main` and Vercel does the rest.
 
-## REST API
+<details>
+<summary><strong>REST API</strong></summary>
 
-All routes are JSON, scoped to the signed-in user (Supabase session cookie + RLS).
+Everything is JSON and scoped to the signed-in user (Supabase session cookie + RLS).
 
 ```
 GET    /api/me                         current user (seeds defaults if missing)
@@ -42,26 +60,18 @@ GET    /api/days/:date                 day + slots
 PUT    /api/days/:date                 freeze, place, review_done, energy_note, mood
 POST   /api/days/:date/plan            { template_id, place_default, is_freeze, slots[] }
 GET    /api/slots?from=&to=            POST /api/slots        PATCH|DELETE /api/slots/:id
-                                       (moving/resizing pushes later slots forward)
 GET    /api/sessions?from=ISO&to=ISO   GET /api/sessions?running=1
-POST   /api/sessions                   start a timer (no ended_at) or log time (with ended_at)
+POST   /api/sessions                   start a timer, or log time (with ended_at)
 PATCH  /api/sessions/:id               { stop: true } or field updates
-POST   /api/fried                      swap to the top shallow task, start its timer
+POST   /api/fried                      swap to the top shallow task and start its timer
 GET    /api/stats/week?start=&tz=      block progress, furthest behind, day types, place
 GET    /api/stats/streak?tz=           streak, today's floor status, XP
 ```
 
-Weekly totals, the furthest-behind block and the streak are computed from `sessions` and `days`, never stored.
+Weekly totals, the furthest-behind block and the streak are computed from sessions, never stored.
 
-## Rules encoded
+</details>
 
-- **Streak**: a day counts with ≥15 min (or an honoured slot) in the *streak floor* block (Job search) plus one
-  other session ≥10 min. Days marked 🧊 off are skipped without breaking it. Today never breaks it.
-- **XP**: 10 per hour logged.
-- **Furthest behind**: lowest progress ratio among blocks with *suggest when behind* on (Sport and Social off by default).
-- **Never when tired**: blocks flagged so (Learning) warn when planned in a shallow slot.
-- **I'm fried**: the current slot's block's top shallow task first, then other blocks in order. Time counts to that task's block.
+## Next up
 
-## v1.1
-
-Push notifications (slot start, idle drift, plan tomorrow). `public/sw.js` already handles `push` events.
+Push notifications: when a slot starts, when I drift, and a nudge to plan tomorrow.
