@@ -1,5 +1,6 @@
 import "server-only";
 import { NextResponse, type NextRequest } from "next/server";
+import { unstable_rethrow } from "next/navigation";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { SUPABASE_KEY, SUPABASE_URL, supabaseConfigured } from "./supabase/env";
@@ -40,6 +41,7 @@ export function route<P = Record<string, string>>(
       if (result instanceof NextResponse) return withCookies(result);
       return withCookies(NextResponse.json(result === undefined ? { ok: true } : result));
     } catch (e) {
+      unstable_rethrow(e);
       if (e instanceof HttpError) return withCookies(NextResponse.json({ error: e.message }, { status: e.status }));
       console.error(e);
       const message = e instanceof Error ? e.message : "Server error";
